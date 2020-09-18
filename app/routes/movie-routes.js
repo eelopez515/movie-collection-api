@@ -9,7 +9,7 @@ const handle404 = customErrors.handle404
 const requireOwnership = customErrors.requireOwnership
 const removeBlanks = require('../../lib/remove_blank_fields')
 
-router.get('/movies', (req, res, next) => {
+router.get('/movies', requireToken, (req, res, next) => {
   Movie.find()
     .populate('owner')
     .populate('reviews.owner')
@@ -20,7 +20,7 @@ router.get('/movies', (req, res, next) => {
     .catch(next)
 })
 
-router.get('/movies/:id', (req, res, next) => {
+router.get('/movies/:id', requireToken, (req, res, next) => {
   const id = req.params.id
 
   Movie.findById(id)
@@ -31,14 +31,15 @@ router.get('/movies/:id', (req, res, next) => {
     .catch(next)
 })
 
-router.post('/movies', (req, res, next) => {
+router.post('/movies', requireToken, (req, res, next) => {
+  req.body.movie.owner = req.user.id
   const movieData = req.body.movie
   Movie.create(movieData)
     .then(movie => res.status(201).json({ movie: movie.toObject() }))
     .catch(next)
 })
 
-router.patch('/movies/:id', removeBlanks, (req, res, next) => {
+router.patch('/movies/:id', requireToken, removeBlanks, (req, res, next) => {
   const id = req.params.id
   const movieData = req.body.movie
 
@@ -49,7 +50,7 @@ router.patch('/movies/:id', removeBlanks, (req, res, next) => {
     .catch(handle404)
 })
 
-router.delete('/movies/:id', (req, res, next) => {
+router.delete('/movies/:id', requireToken, (req, res, next) => {
   const id = req.params.id
 
   Movie.findById(id)
