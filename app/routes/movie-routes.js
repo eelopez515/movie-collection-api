@@ -32,7 +32,7 @@ router.get('/movies/:id', requireToken, (req, res, next) => {
 })
 
 router.post('/movies', requireToken, (req, res, next) => {
-  req.body.movie.owner = req.user.id
+  req.body.movie.owner = req.user._id
   const movieData = req.body.movie
   Movie.create(movieData)
     .then(movie => res.status(201).json({ movie: movie.toObject() }))
