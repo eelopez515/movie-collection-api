@@ -10,7 +10,8 @@ const requireOwnership = customErrors.requireOwnership
 const removeBlanks = require('../../lib/remove_blank_fields')
 
 router.get('/movies', requireToken, (req, res, next) => {
-  Movie.find()
+  const userId = req.user._id
+  Movie.find({ owner: userId })
     .populate('owner')
     .populate('reviews.owner')
     .then(movies => {
