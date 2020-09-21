@@ -9,7 +9,7 @@ const handle404 = customErrors.handle404
 const requireOwnership = customErrors.requireOwnership
 const removeBlanks = require('../../lib/remove_blank_fields')
 
-router.get('/movies', requireToken, (req, res, next) => {
+router.get('/movies', requireToken, removeBlanks, (req, res, next) => {
   const userId = req.user._id
   Movie.find({ owner: userId })
     .populate('owner')
@@ -47,7 +47,7 @@ router.patch('/movies/:id', requireToken, removeBlanks, (req, res, next) => {
   Movie.findById(id)
     .then(handle404)
     .then(movie => movie.updateOne(movieData))
-    .then(() => res.sendStatus(204))
+    .then(() => res.sendStatus(200))
     .catch(handle404)
 })
 
