@@ -43,12 +43,15 @@ router.post('/movies', requireToken, (req, res, next) => {
 router.patch('/movies/:id', requireToken, removeBlanks, (req, res, next) => {
   console.log(req.body)
   const id = req.params.id
-  const movieData = req.body.movie
+  const movieData = req.body
 
   Movie.findById(id)
     .then(handle404)
-    .then(movie => movie.updateOne(movieData))
-    .then(movie => res.sendStatus(200).json({ movie }))
+    .then(movie => {
+      requireOwnership(req, movie)
+      return movie.updateOne(movieData)
+    })
+    .then(movie => res.status(200).json({ movie }))
     .catch(handle404)
 })
 
@@ -57,7 +60,7 @@ router.delete('/movies/:id', requireToken, (req, res, next) => {
 
   Movie.findById(id)
     .then(movie => movie.deleteOne())
-    .then(() => res.sendStatus(204))
+    .then(movie => res.sendStatus(204))
     .catch(next)
 })
 
